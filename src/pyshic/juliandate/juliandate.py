@@ -59,7 +59,7 @@ def __day_pct(hour, minute, second):
     Args:
         hour (int): Hour.
         minute (int): Minute.
-        second (int): Second.
+        second (float): Second with 1/10 second  
 
     Returns:
         float: The fractional day.
@@ -85,7 +85,7 @@ def __h_m_s(t):
     if seconds >= 60:
         seconds -= 60
         minutes += 1  
-    return ((hour + 12) % 24, minutes, int(round(seconds)))
+    return ((hour + 12) % 24, minutes, round(seconds, 1))
 
 
 def __jd_to_date(jdn, is_gregorian=False):
@@ -105,7 +105,6 @@ def __jd_to_date(jdn, is_gregorian=False):
     Returns:
         Tuple[int, int, int]: A tuple containing year, month, and day.
     """
-
     J = int(jdn + 0.5)
 
     m = 2
@@ -168,11 +167,6 @@ def to_julian(julian_day: Union[int,float]) -> Tuple[int, int, int, int, int, in
         >>> to_julian(0)
         (-4712, 1, 1, 12, 0, 0)
     
-    !!! note "Phasellus posuere in sem ut cursus"
-
-    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla et euismod
-    nulla. Curabitur feugiat, tortor non consequat finibus, justo purus auctor
-    massa, nec semper lorem quam in massa.
     
     Args:
         julian_day (float, int): The Julian Day Number as float or int.
@@ -228,7 +222,7 @@ def from_gregorian(year:int, month:int, day:int, hour:int=0, minute:int=0, secon
     Returns:
         float: The Julian Day Number.
     """
-    seconds = round(seconds)
+    seconds = round(seconds,1)
     return (
         int((1461 * (year + 4800 + int((month - 14) / 12))) / 4)
         + int((367 * (month - 2 - 12 * int((month - 14) / 12))) / 12)
