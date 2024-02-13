@@ -67,24 +67,33 @@ def __day_pct(hour, minute, second):
     return ((hour * 3600 + minute * 60 + second) / 86400) - 0.5
 
 
-def __h_m_s(t):
+def __h_m_s(t, is_int=True):
     """
     Convert the decimal part of a Julian Day Number to hours, minutes, and seconds.
 
     Args:
         julian_day (float): The Julian Day Number.
+        is_int (bool): Returns the full seconds as integer. if false it returns a 
+        float resembling the first digit after the decimal point. Getting a resulution
+        of 100 miliseconds.
 
     Returns:
-        Tuple[int, int, float]: A tuple containing hour, minute, and second.
+        Tuple[int, int, float|int]: A tuple containing hour, minute, and second.
     """
     pct = t - int(t)
     (hour, r) = __tdiv(pct, 24)
     (minutes, r) = __tdiv(r, 60)
     (seconds, r) = __tdiv(r, 60)
-    seconds = seconds+round(r,3)
+
+    if is_int:
+        seconds = round(seconds+r)
+    else:
+        seconds = seconds+round(r,2)
     if seconds >= 60:
         seconds -= 60
         minutes += 1  
+    if is_int:
+        return ((hour + 12) % 24, minutes, int(round(seconds)))
     return ((hour + 12) % 24, minutes, round(seconds, 1))
 
 
@@ -153,31 +162,36 @@ def __param_f(julian_day: Union[int,float], is_gregorian: bool = False) -> int:
 
 
 
-def to_julian(julian_day: Union[int,float]) -> Tuple[int, int, int, int, int, int]:
+def to_julian(julian_day: Union[int,float], is_int:bool=True) -> Tuple[int, int, int, int, int, int|float]:
     """
-    Convert a Julian Day Number to a Julian calendar date including hour, minute, and seconds.
+    Convert a Julian Day Number to a Julian calendar date including hour, minute, and seconds. 
 
     Examples:
-        ``` py
-        to_julian(1566223.56309468)
-        out: (-424, 2, 2, 1, 30, 51)
-        ```
-        >>> (-424, 2, 2, 1, 30, 51)
-
+        >>> to_julian(1566223.56309468)
+        (-424, 2, 2, 1, 30, 51)
+        >>> to_julian(1566223.56309468, is_int=False)
+        (-424, 2, 2, 1, 30, 51.4)
+        >>> to_julian(1566223.563096, is_int=False)
+        (-424, 2, 2, 1, 30, 51.5)
         >>> to_julian(0)
         (-4712, 1, 1, 12, 0, 0)
     
-    
+    The negative year indicates BCE. 
+    1 BCE is 0, so -43 means 44 BCE, and this value is March 15, 44 BCE (the Ides of March).
+        >>> to_julian(1705426)
+        (-43, 3, 15, 12, 0, 0, 0)
+
+
     Args:
         julian_day (float, int): The Julian Day Number as float or int.
 
     Returns:
         A tuple containing year, month, day, hour, minute, and second.
     """
-    return __jd_to_date(julian_day) + __h_m_s(julian_day)
+    return __jd_to_date(julian_day) + __h_m_s(julian_day, is_int)
 
 
-def to_gregorian(julian_day: Union[int,float]) -> Tuple[int, int, int, int, int, int]:
+def to_gregorian(julian_day: Union[int,float], is_int:bool=True) -> Tuple[int, int, int, int, int, int]:
     """
     Convert a Julian Day Number to a Gregorian calendar date including hour, minute, and second.
 
@@ -194,7 +208,7 @@ def to_gregorian(julian_day: Union[int,float]) -> Tuple[int, int, int, int, int,
 
         ``` py
             from datetime import datetime
-            datetime(*to_gregorian(2440423.345139))
+            datetime(*to_gregorian(2440423.345139, is_int=True))
         ```
 
 
@@ -204,12 +218,25 @@ def to_gregorian(julian_day: Union[int,float]) -> Tuple[int, int, int, int, int,
     Returns:
         A tuple containing year, month, day, hour, minute, and second.
     """
-    return __jd_to_date(julian_day, True) + __h_m_s(julian_day)
+    return __jd_to_date(julian_day, True) + __h_m_s(julian_day, is_int)
 
 
 def from_gregorian(year:int, month:int, day:int, hour:int=0, minute:int=0, seconds:Union[float,int]=0):
     """
-    Convert a Gregorian calendar date to a Julian Day Number.
+    Convert a Gregorian calendar date to a Julian Day Number. The algorithm 
+    is valid for all (possibly proleptic) Gregorian calendar dates after 
+    November 23, −4713. Divisions are integer divisions towards zero; 
+    fractional parts are ignored.
+
+    Examples:
+        >>> from_gregorian(-4713, 11, 24, 12, 0, 0)
+        0
+        >>> from_gregorian(1969, 7, 20)
+        2440422.5
+        >>> from_gregorian(1969, 7, 20, 20, 17, 30)
+        2440423.345486111
+        >>> to_gregorian(from_gregorian(1969, 7, 20, 20, 17, 58.4),is_int=False)
+        (1969, 7, 20, 20, 17, 58.4)
 
     Args:
         year (int): Year.
@@ -217,24 +244,37 @@ def from_gregorian(year:int, month:int, day:int, hour:int=0, minute:int=0, secon
         day (int): Day.
         hour (int): Hour.
         minute (int): Minute.
-        seconds (int|float): Seconds get rounded to the closest full second.
+        seconds (int|float): Seconds get rounded to the closest tenth of a second.
 
     Returns:
-        float: The Julian Day Number.
+        (float): The Julian Day Number.
     """
-    seconds = round(seconds,1)
-    return (
+    tmp = (
         int((1461 * (year + 4800 + int((month - 14) / 12))) / 4)
         + int((367 * (month - 2 - 12 * int((month - 14) / 12))) / 12)
         - int((3 * int((year + 4900 + int((month - 14) / 12)) / 100)) / 4)
         + day
         - 32075
-    ) + __day_pct(hour, minute, seconds)
+    ) 
+
+    seconds = round(seconds,1)
+    return tmp + __day_pct(hour, minute, seconds)
 
 
 def from_julian(year:int, month:int, day:int, hour:int=0, minute:int=0, second:Union[int,float]=0):
     """
-    Convert a Julian calendar date to a Julian Day Number.
+    Convert a Julian calendar date to a Julian Day Number. The algorithm 
+    is valid for all (possibly proleptic) Julian calendar years ≥ −4712, 
+    that is, for all JDN ≥ 0. Divisions are integer divisions, 
+    fractional parts are ignored.
+
+    Examples:
+        >>> from_julian(-43, 3, 15)
+        1705425.5
+        >>> from_julian(-43, 3, 15, 15)
+        1705426.125
+        >>> from_julian(-4712, 1, 1, 12, 0, 0)
+        0
 
     Args:
         year (int): Year.
@@ -242,11 +282,12 @@ def from_julian(year:int, month:int, day:int, hour:int=0, minute:int=0, second:U
         day (int): Day.
         hour (int): Hour.
         minute (int): Minute.
-        second (int|float): Seconds get rounded to the closest full second.
+        second (int|float): Seconds get rounded to the closest tenth of a second.
 
     Returns:
-        float: The Julian Day Number.
+        (float): The Julian Day Number.
     """
+    second = round(second, 1)
     return (
         367 * year
         - int((7 * (year + 5001 + int((month - 9) / 7))) / 4)

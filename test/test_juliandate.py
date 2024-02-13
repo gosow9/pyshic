@@ -3,7 +3,11 @@ from pyshic.juliandate import to_julian, from_julian, to_gregorian, from_gregori
 
 def test_gregorian():
     # A.D. 1969 July 20 20:17:30.0, some precision lacking
+    assert to_gregorian(2440423.345484, is_int=False) == (1969, 7, 20, 20, 17, 29.8)
+    assert to_gregorian(2440423.345485, is_int=False) == (1969, 7, 20, 20, 17, 29.9)
     assert to_gregorian(2440423.345486) == (1969, 7, 20, 20, 17, 30)
+    assert to_gregorian(2440423.345487, is_int=False) == (1969, 7, 20, 20, 17, 30.1)
+    assert to_gregorian(2440423.345488, is_int=False) == (1969, 7, 20, 20, 17, 30.2)
 
 def test_julian():
     # 44 March 15 B.C. 15:00:00.0
@@ -69,6 +73,24 @@ def test_for_rounding_error():
     assert from_gregorian(*to_gregorian(28951)) == 28951
     assert from_gregorian(*to_gregorian(4479)) == 4479
     assert from_gregorian(*to_gregorian(0)) == 0
+
+def test_gregorian_for_same_result_back():
+    assert to_gregorian(from_gregorian(1969, 7, 20, 20, 17, 58.4),is_int=False) == (1969, 7, 20, 20, 17, 58.4)
+    assert to_gregorian(from_gregorian(1969, 7, 20, 20, 17, 59.4),is_int=False) == (1969, 7, 20, 20, 17, 59.4)
+    assert to_gregorian(from_gregorian(1969, 7, 20, 20, 17, 59.91),is_int=False) == (1969, 7, 20, 20, 17, 59.9)
+    assert to_gregorian(from_gregorian(1969, 7, 20, 20, 17, 59.99),is_int=False) == (1969, 7, 20, 20, 18, 0)
+    assert to_gregorian(from_gregorian(1969, 7, 20, 20, 17, 59.9),is_int=False) == (1969, 7, 20, 20, 17, 59.9)
+    assert to_gregorian(from_gregorian(1969, 7, 20, 20, 17, 59.9),is_int=True) == (1969, 7, 20, 20, 18, 0)
+
+def test_julian_for_same_result_back():
+    assert to_julian(from_julian(1969, 7, 20, 20, 17, 58.4),is_int=False) == (1969, 7, 20, 20, 17, 58.4)
+    assert to_julian(from_julian(1969, 7, 20, 20, 17, 59.4),is_int=False) == (1969, 7, 20, 20, 17, 59.4)
+    assert to_julian(from_julian(1969, 7, 20, 20, 17, 59.91),is_int=False) == (1969, 7, 20, 20, 17, 59.9)
+    assert to_julian(from_julian(1969, 7, 20, 20, 17, 59.99),is_int=False) == (1969, 7, 20, 20, 18, 0)
+    assert to_julian(from_julian(1969, 7, 20, 20, 17, 59.9),is_int=False) == (1969, 7, 20, 20, 17, 59.9)
+    assert to_julian(from_julian(1969, 7, 20, 20, 17, 59.9),is_int=True) == (1969, 7, 20, 20, 18, 0)
+
+
 
 def test_fliegel_van_flandern():
     # Fliegel, Henry F., and Thomas C. Van Flandern. “A Machine
