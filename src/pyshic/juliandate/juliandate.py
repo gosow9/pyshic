@@ -162,7 +162,7 @@ def __param_f(julian_day: Union[int,float], is_gregorian: bool = False) -> int:
 
 
 
-def to_julian(julian_day: Union[int,float], is_int:bool=True) -> Tuple[int, int, int, int, int, int|float]:
+def to_julian(julian_day: Union[int,float], is_int:bool=True) -> Tuple[int, int, int, int, int, Union[int,float]]:
     """
     Convert a Julian Day Number to a Julian calendar date including hour, minute, and seconds. 
 
