@@ -17,9 +17,9 @@ def moonsza(julian_day):
         A (float): Declination (degrees).
     """
     year, month, day, hour, minute, seconds = jd.to_gregorian(julian_day, is_int=False)
-
+    YE = year
     P0 = math.pi / 180  # Degree to radian conversion factor
-    
+    jday = julian_day
     lunar_pos = (year - 84) * 365 + int((year - 80) / 4)
     # Calculate lunar position
     TT = (YE - 84) * 365 + int((YE - 80) / 4)
