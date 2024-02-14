@@ -16,6 +16,7 @@ def moonsza(julian_day):
         RA (float): Right ascension (degrees).
         A (float): Declination (degrees).
     """
+    T0 = 0
     year, month, day, hour, minute, seconds = jd.to_gregorian(julian_day, is_int=False)
     YE = year
     P0 = math.pi / 180  # Degree to radian conversion factor
