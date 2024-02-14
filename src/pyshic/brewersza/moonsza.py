@@ -1,7 +1,8 @@
 import math
+from pyshic.juliandate import juliandate as jd
 from datetime import datetime
 
-def moonsza(T0, LO, jday, YE):
+def moonsza(julian_day):
     """
     Calculate the moon's position (right ascension and declination) based on time, longitude, Julian day, and year.
 
@@ -15,12 +16,14 @@ def moonsza(T0, LO, jday, YE):
         RA (float): Right ascension (degrees).
         A (float): Declination (degrees).
     """
+    year, month, day, hour, minute, seconds = jd.to_gregorian(julian_day, is_int=False)
+
     P0 = math.pi / 180  # Degree to radian conversion factor
     
-
+    lunar_pos = (year - 84) * 365 + int((year - 80) / 4)
     # Calculate lunar position
     TT = (YE - 84) * 365 + int((YE - 80) / 4)
-    if jday < 3 and YE % 4 == 0:
+    if year % 4 == 0:
         TT -= 1
 
     TT = (TT - 5845.5 + jday + T0 / 1440) / 36525

@@ -6,18 +6,6 @@ Provides utilities for converting dates between Julian and Gregorian calendars,
 including Julian Day Number calculations. Features include type hints, 
 improved docstrings, and refined function names for enhanced usability.
 
-The module contains the following functions:
-
-- `to_julian(J)` - Returns the sum of two numbers.
-- `to_gregorian(J)` - Returns the difference of two numbers.
-- `from_gregorian(a, b)` - Returns the product of two numbers.
-- `from_julian(a, b)` - Returns the quotient of two numbers.
-
-
-This tool is based on modified source code originally available at a public 
-repository https://github.com/seanredmond/juliandate. 
-We thank the original contributors for their foundational work.
-
 Copyright (C) 2024  Cédric Renda
 
 This program is free software: you can redistribute it and/or modify
@@ -34,12 +22,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-
-
 import math
 import numpy as np
-from datetime import datetime, timedelta
-
 
 
 def brewer_sza(julian_date:float, lat, long, mode='sun', ho3=22, hray=5):

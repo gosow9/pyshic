@@ -16,6 +16,7 @@ nav:
     - "Overview": reference/reference.md 
     - "julianday": reference/julianday.md
     - "brewersza": reference/brewersza.md
+    - "Spectral Operations": reference/spectral_ops.md
 
   - explanation.md
 
